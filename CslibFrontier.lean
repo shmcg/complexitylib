@@ -3598,6 +3598,7 @@ public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.NewtonProduct
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.OuterRootLeafRunner
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.PacketChoice
+public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.PacketMode
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.PacketValidity
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.PortAssignment
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.Alternating.Prepend
