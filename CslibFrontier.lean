@@ -7793,6 +7793,7 @@ public import CslibFrontier.Foundations.Data.BitString.DeltaMatroid.ExchangeBoun
 public import CslibFrontier.Foundations.Data.BitString.DeltaMatroid.Operations
 public import CslibFrontier.Foundations.Data.BitString.Discriminator
 public import CslibFrontier.Foundations.Data.BitString.Enumeration
+public import CslibFrontier.Foundations.Data.BitString.FieldEnumeration
 public import CslibFrontier.Foundations.Data.BitString.FiniteEncoding
 public import CslibFrontier.Foundations.Data.BitString.Flip
 public import CslibFrontier.Foundations.Data.BitString.FunctionTables
