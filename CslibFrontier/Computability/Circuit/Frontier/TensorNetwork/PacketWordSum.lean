@@ -13,6 +13,7 @@ public import
   CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.FastContraction.StoppingQuery.WordSum
 import Mathlib.Data.Finset.Fin
 import Mathlib.Data.List.GetD
+import Mathlib.Order.Interval.Finset.Nat
 
 /-!
 # Packet entries in the existing binary sum-of-products circuit
@@ -22,6 +23,9 @@ its local term or one dense mode. A validity factor enforces the target-mode mul
 and a final factor supplies the source-mode product. Thus the whole packet entry is one sum
 of products with `R + 2` factors; the existing stopping circuit can evaluate its coefficient
 bits without a separate outer multiplication circuit.
+
+`sum_modeScalarFactor` expresses a mode value in the same form using scalar inputs and
+the original port indices. A padding index has a row tag and contributes zero.
 
 `sum_factor` identifies this expression with the existing coefficient-list packet evaluator.
 `value_root` and `bit_sum` instantiate the succinct stopping circuit and its carry-save sum.
@@ -149,5 +153,49 @@ theorem value_root (m : ℕ) (c : PacketCtx) (hfl : c.fl = modulus m)
   subst fl
   dsimp only at hs ⊢
   rw [StoppingQuery.value_root, hs]
+
+/-- A scalar factor for one port's contribution to a packet mode. The first `exponent`
+vertices carry the slot quotient. The final vertex tests the side, bit, symbols and residue. -/
+@[expose] def modeScalarFactor (i tile exponent : ℕ) (differ : Bool) (tag : Bool × ℕ)
+    (bit : Bool) (vertex : ℕ) : ℕ :=
+  if vertex < exponent then tag.2 / 2 ^ (i + 1)
+  else if tag.1 = false ∧ bit = true ∧ differ = true ∧ tag.2 % 2 ^ (i + 1) = tile then 1 else 0
+
+private theorem prod_modeScalarFactor {R : Type*} [CommSemiring R] (i tile exponent : ℕ)
+    (differ : Bool) (tag : Bool × ℕ) (bit : Bool) :
+    (∏ v ∈ range (exponent + 1), (modeScalarFactor i tile exponent differ tag bit v : R)) =
+      if tag.1 = false ∧ bit = true ∧ differ = true ∧ tag.2 % 2 ^ (i + 1) = tile then
+        ((tag.2 / 2 ^ (i + 1) : ℕ) : R) ^ exponent else 0 := by
+  rw [prod_range_succ]
+  have copies : (∏ v ∈ range exponent, (modeScalarFactor i tile exponent differ tag bit v : R)) =
+      ∏ _v ∈ range exponent, ((tag.2 / 2 ^ (i + 1) : ℕ) : R) :=
+    prod_congr rfl fun v hv => by simp only [modeScalarFactor, mem_range.mp hv, ↓reduceIte]
+  rw [copies, prod_const, card_range]
+  simp only [modeScalarFactor, lt_self_iff_false, ↓reduceIte]
+  split_ifs <;> simp
+
+/-- The sum of the scalar products over any padded range covering all port indices equals
+the mode value on the selected column ports. Bit lookups retain the original port order.
+Padding contributes zero even at exponent zero and with extra assignment bits. -/
+theorem sum_modeScalarFactor (p : ℕ) (fl : List ℕ) (i tile exponent : ℕ) (differ : Bool)
+    (tags : List (Bool × ℕ)) (bits : List Bool) (padded : ℕ) (h : tags.length ≤ padded) :
+    (∑ j ∈ range padded, ∏ v ∈ range (exponent + 1), (modeScalarFactor i tile exponent differ
+      (tags.getD j (true, 0)) (bits.getD j false) v : Ring p fl)) =
+      val p fl (modeValueList p fl i differ (sidePorts tags bits false) tile exponent) := by
+  classical
+  simp_rw [prod_modeScalarFactor (R := Ring p fl) i tile exponent differ]
+  rw [← sum_subset (range_mono h) (fun j _ hj => by
+    have hj' := Nat.le_of_not_gt (mt mem_range.mpr hj)
+    rw [List.getD_eq_default tags (true, 0) hj']
+    simp)]
+  rw [modeValueList, val_sumList, sidePorts, List.map_map, List.map_map,
+    ← List.sum_toFinset _ (List.nodup_range.filter _), List.toFinset_filter, List.toFinset_range,
+    sum_filter]
+  refine sum_congr rfl fun j hj => ?_
+  have hj' := mem_range.mp hj
+  simp only [List.getD_eq_getElem _ _ hj', Function.comp_apply]
+  by_cases heligible : bits.getD j false = true ∧ differ = true ∧ tags[j].2 % 2 ^ (i + 1) = tile <;>
+    simp only [beq_iff_eq, heligible, and_true, and_false, ↓reduceIte, val_pow, val_intConst,
+      Int.cast_natCast, val_zero, ite_self]
 
 end Cslib.Circuits.Frontier.NativePacket.PacketWordSum

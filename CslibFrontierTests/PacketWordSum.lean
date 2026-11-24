@@ -94,4 +94,22 @@ example :
   change _ = false at h
   exact h
 
+-- A row precedes the eligible column. Indexing the filtered column list into the assignment
+-- would read the first bit and miss the contribution (5 / 2) ^ 2 = 4.
+example :
+    let tags : List (Bool × ℕ) := [(true, 1), (false, 5), (false, 2)]
+    let bits := [false, true, true, true]
+    (∑ j ∈ Finset.range 4, ∏ v ∈ Finset.range 3,
+      (modeScalarFactor 0 1 2 true (tags.getD j (true, 0)) (bits.getD j false) v :
+        GaloisRingArith.Ring 4 [1])) = 4 := by
+  dsimp only
+  rw [sum_modeScalarFactor 4 [1] 0 1 2 true _ _ 4 (by decide)]
+  norm_num [modeValueList, sidePorts, val_sumList, GaloisRingArith.val_pow, val_intConst,
+    List.range_succ]
+
+-- At exponent zero the single factor still excludes missing tags and equal symbols.
+example : modeScalarFactor 0 0 0 true (true, 0) true 0 = 0 ∧
+    modeScalarFactor 0 0 0 false (false, 0) true 0 = 0 ∧
+    modeScalarFactor 0 0 0 true (false, 0) true 0 = 1 := by decide
+
 end Cslib.Circuits.Frontier.NativePacket.PacketWordSum.Tests

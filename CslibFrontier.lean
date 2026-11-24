@@ -3731,6 +3731,7 @@ public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputa
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.OuterSearchParameters
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.OuterSearchSpace
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.PacketChoice
+public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.PacketModeInput
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.PacketSourceProduct
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.PacketValidity
 public import CslibFrontier.Computability.Machines.Turing.MultiTape.BlockComputation.PortAssignment
