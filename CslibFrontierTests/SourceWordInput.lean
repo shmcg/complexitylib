@@ -46,3 +46,26 @@ example : ∃ (u : ℕ) (Q : Type) (_ : Finite Q) (atm : MultiTapeATM u Bool Q) 
   refine ⟨u, Q, hQ, atm, C, fun ch x => ?_⟩
   obtain ⟨ht, ha⟩ := h ch x 2 (read_first x ch).1
   exact ⟨ht, ha.trans (read_first x ch).2⟩
+
+-- A stored pair supplies the source seen by the child, for every outer host and head position.
+-- Empty and rejecting payloads are included even when the host begins with true.
+example : ∃ (U : ℕ) (src : Fin U) (Q : Type) (_ : Finite Q)
+    (atm : MultiTapeATM U Bool Q) (C : ℕ), ∀ (host ch x : List Bool) (pos : ℕ),
+      let word := encPair encBits encBits (ch, x)
+      let time := pos + C * (word.length + 1) + 12
+      let start := SharedWordFork.start src atm host word pos
+      pos ≤ word.length → atm.HaltsWithin time start ∧
+        (atm.AcceptsWithin time start ↔ x.head? = some true) := by
+  have hf : ComputableInO (Prod.fst : List Bool × List Bool → List Bool)
+      (encPair encBits encBits) encBits
+      (fun p => (encPair encBits encBits p).length) (fun p => (encPair encBits encBits p).length) :=
+    .of_linear (PairEncoding.fst (enc₁ := encBits) (enc₂ := encBits))
+  have hs : ComputableInO (Prod.snd : List Bool × List Bool → List Bool)
+      (encPair encBits encBits) encBits
+      (fun p => (encPair encBits encBits p).length) (fun p => (encPair encBits encBits p).length) :=
+    .of_linear (PairEncoding.snd (enc₁ := encBits) (enc₂ := encBits))
+  obtain ⟨U, src, Q, hQ, atm, C, h⟩ := SourceWordInput.exists_prepend_work hf hs 0 child
+  refine ⟨U, src, Q, hQ, atm, C, ?_⟩
+  intro host ch x pos word time start hpos
+  obtain ⟨hh, ha⟩ := h host (ch, x) pos hpos 2 (read_first x ch).1
+  exact ⟨hh, ha.trans (read_first x ch).2⟩
