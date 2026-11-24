@@ -1888,6 +1888,7 @@ public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.ChildSi
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.ClauseNetwork
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.ClauseNetworkPolyTime
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.CoeffScheme
+public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.CoeffWordSum
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.Constraint
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.Deformation
 public import CslibFrontier.Computability.Circuit.Frontier.TensorNetwork.DescribedContraction
